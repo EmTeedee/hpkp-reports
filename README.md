@@ -8,6 +8,9 @@ Installation
 - clone the repository
 - create a mysql database using includes/hpkp.sql
 - copy includes/config.ini.example to include/config.ini and adjust the values
+- point your pins to the reporter e.g. ```report-uri="http://yourhostname/hpkp-reports/"```
+
+Note: Make sure that the reporter is installed on a different domain to avoid problems with HSTS or HPKP preventing contact to the reporting service.
 
 Roadmap
 -------
