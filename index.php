@@ -91,12 +91,12 @@ HPKP validation for host {$obj->hostname} failed.
 
 Reporting IP:    {$values[':ip']}
 Report Time:     {$values[':time']}
-Hostname:        {$values[':hostname']}:{$values[':port']}
+Hostname:        {$values[':hostname']}
+Port:            {$values[':port']}
 
 Pins cached for: {$values[':noted_host']}
-Known pins:      {$values[':pins']}
-Subdomains:      {$values[':subdomains']}
 Expiration:      {$values[':expiration']}
+Subdomains:      {$values[':subdomains']}
 Known pins:      {$values[':pins']}
 
 Certificate Chain Served:
