@@ -1,0 +1,19 @@
+debug = false
+
+[DB]
+; MySQL database credentials
+database = hpkp
+username = hpkp-reports
+password = hpkp-reports
+hostname = localhost
+
+[Alerts]
+; enable email alerts
+enabled = true
+; email address
+email = something@example.com
+; throttle by domain or for all
+throttle_by_domain = true
+; how many hours before new email alert is raised on new report
+;  set to 0 for alert on each report
+throttle_hours = 2
