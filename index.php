@@ -45,7 +45,7 @@ if (is_object($obj) && isset($obj->{'hostname'})) {
 		':noted_host' => property_exists($obj, 'noted-hostname') ? $obj->{'noted-hostname'} : null,
 		':chain_served' => property_exists($obj, 'served-certificate-chain') ? json_encode($obj->{'served-certificate-chain'}) : array(),
 		':chain_validated' => property_exists($obj, 'validated-certificate-chain') ? json_encode($obj->{'validated-certificate-chain'}) : array(),
-		':pins' => json_encode( property_exists($obj, 'pins') ? $obj->{'pins'} : array() ),
+		':pins' => json_encode( property_exists($obj, 'known-pins') ? $obj->{'known-pins'} : array() ),
 	);
 	$stmt = db()->preparedStatement($query, $values);
 	if (!$stmt->success) {
@@ -76,9 +76,39 @@ if (is_object($obj) && isset($obj->{'hostname'})) {
 		}
 		
 		if ($send_alert) {
+            $values[':subdomains'] = ($values[':subdomains'] ? 'true' : 'false');
+
 			// send email
-			print("/* do some emailing */\n");
-			
+		    $headers  = "From: <hpkp-reports@" . gethostname() . ">\r\n";
+            $headers .= 'X-Mailer: PHP/' . phpversion() . "\r\n";
+            $headers .= 'MIME-Version: 1.0'."\r\n";
+            $headers .= 'Content-type: text/plain; charset=UTF-8';
+
+            $subject = '=?UTF-8?B?'.base64_encode('Possible MITM on ' . $obj->{'hostname'}).'?=';
+            $message = <<<ENDOFMESSAGE
+
+HPKP validation for host {$obj->hostname} failed.
+
+Reporting IP:    {$values[':ip']}
+Report Time:     {$values[':time']}
+Hostname:        {$values[':hostname']}:{$values[':port']}
+
+Pins cached for: {$values[':noted_host']}
+Known pins:      {$values[':pins']}
+Subdomains:      {$values[':subdomains']}
+Expiration:      {$values[':expiration']}
+Known pins:      {$values[':pins']}
+
+Certificate Chain Served:
+{$values[':chain_served']}
+
+Certificate Chain Validated:
+{$values[':chain_validated']}
+ENDOFMESSAGE;
+
+            $message = preg_replace("#(?<!\r)\n#si", "\r\n", $message);
+            mail(ALERTS_EMAIL, $subject, $message, $headers);
+
 			// update alert table
 			db()->preparedStatement(
 				"INSERT INTO `%table` SET `hostname` = :domain, `last_alert` = NOW()
